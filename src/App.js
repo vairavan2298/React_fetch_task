@@ -1,58 +1,73 @@
 import React, { Component } from "react";
-
 import "./App.css";
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      items: [],
-      isLoaded: false,
-    };
+class App extends Component {
+  state = {
+    data: [],
+    isLoaded: false,
+  };
+  constructor() {
+    super();
+    let isLoaded = false;
+    let data = [];
+    this.state = { data, isLoaded };
   }
 
-  componentDidMount() {
-    const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-    const url = `${proxyUrl}https://newsapi.org/v2/everything?q=bitcoin&apiKey=adba241f9e2249209ea905b6617234ef`;
-    fetch(url)
+  componentDidMount = () => {
+    let url =
+      "https://newsapi.org/v2/everything?q=bitcoin&apiKey=adba241f9e2249209ea905b6617234ef";
+
+    let req = new Request(url);
+    fetch(req)
       .then((res) => res.json())
       .then((data) => {
-        this.setState({ isLoaded: true, items: data.articles }) ||
-          console.log(data);
-        prompt();
+        this.setState({ data: data.articles, isLoaded: true });
       });
-    //
-    // .catch((error) => console.log("parsing failed", error));
-  }
-
+  };
   render() {
-    var { isLoaded } = this.state;
-    if (!isLoaded) {
-      return <div>Loading...</div>;
-    } else {
-      return (
-        <div ClassName="App">
-          loaded successfully
-          <table>
+    let { isLoaded, data } = this.state;
+    return (
+      <React.Fragment>
+        <header>
+          <div className="container header">
+            <h2>NewsAPI</h2>
+          </div>
+        </header>
+        <div className="container">
+          <table className="table">
             <thead>
               <tr>
-                <td>Title</td>
-                <td>Description</td>
-                <td>Url</td>
-                <td>name</td>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Url</th>
+                <th>Source Name</th>
               </tr>
             </thead>
+            <tbody>
+              {isLoaded &&
+                data.map((row) => {
+                  return (
+                    <tr key={row["title"]}>
+                      <td>{row["title"]}</td>
+                      <td>{row["description"]}</td>
+                      <td>
+                        <a href={row["url"]}>{row["url"]}</a>
+                      </td>
+                      <td>{row["source"]["name"]}</td>
+                    </tr>
+                  );
+                })}
+            </tbody>
           </table>
-          <ul>
-            {this.items.map((item) => (
-              <li>
-                description: {item.description} | url: {item.url}
-              </li>
-            ))}
-            ;
-          </ul>
         </div>
-      );
-    }
+        {!isLoaded && (
+          <div className="loader container">
+            <b>Loading...</b>
+          </div>
+        )}
+      </React.Fragment>
+    );
   }
 }
+
+export default App;
